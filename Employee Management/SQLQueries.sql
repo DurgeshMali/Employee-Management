@@ -1,0 +1,112 @@
+CREATE DATABASE Employee;
+
+CREATE TABLE Employees(
+	Id  INT IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	Email VARCHAR(100) NOT NULL,
+	PhoneNo VARCHAR(10) NOT NULL,
+	GenderId INT,
+	DOB DATE NOT NULL,
+	DateOfJoining DATE,
+	SalaryId INT,
+	DepartmentId INT,
+	DesignationId INT,
+	ManagerId INT,
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Salaries (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	EmployeeId INT,
+	Basic DECIMAL(10,2),
+	Allowance DECIMAL(10,2),
+	NetSalary DECIMAL(10,2),
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Departments (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Genders (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Levels (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Designations (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	LevelId INT,
+	CreatedAt DATETIME,
+	UpdatedAt DATETIME
+);
+
+ALTER TABLE Departments
+ADD CONSTRAINT DF_Departments_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Designations
+ADD CONSTRAINT DF_Designations_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Employees
+ADD CONSTRAINT DF_Empolyees_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Genders
+ADD CONSTRAINT DF_Genders_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Levels
+ADD CONSTRAINT DF_Levels_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Salaries
+ADD CONSTRAINT DF_Salaries_CreatedAt
+DEFAULT GETDATE() FOR CreatedAt;
+
+ALTER TABLE Salaries
+ADD CONSTRAINT FK_Salaries_EmployeeId
+FOREIGN KEY(EmployeeId) REFERENCES Employees(Id) ON DELETE CASCADE;
+
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_GenderId
+FOREIGN KEY(GenderId) REFERENCES Genders(Id);
+
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_SalaryId
+FOREIGN KEY(SalaryId) REFERENCES Salaries(Id);
+
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_DepartmentId
+FOREIGN KEY(DepartmentId) REFERENCES Departments(Id) ON DELETE SET NULL;
+
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_DesignationId
+FOREIGN KEY(DesignationId) REFERENCES Designations(Id) ON DELETE SET NULL;
+
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_ManagerId
+FOREIGN KEY(ManagerId) REFERENCES Employees(Id) ON DELETE SET NULL;
+
+ALTER TABLE Designations
+ADD CONSTRAINT FK_Employees_LevelId
+FOREIGN KEY(LevelId) REFERENCES Levels(Id) ON DELETE SET NULL;
+
+
+
+
