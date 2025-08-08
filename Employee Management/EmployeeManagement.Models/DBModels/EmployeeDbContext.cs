@@ -58,7 +58,7 @@ public partial class EmployeeDbContext : DbContext
 
             entity.ToTable(tb => tb.HasTrigger("trg_AfterDelete_Employee"));
 
-            entity.Property(e => e.Dob).HasColumnName("DOB");
+            entity.Property(e => e.DOB).HasColumnName("DOB");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);

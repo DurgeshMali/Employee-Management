@@ -1,5 +1,9 @@
 
 using EmployeeManagement.Models.DBModels;
+using EmployeeManagement.Repository.Implementations;
+using EmployeeManagement.Repository.Interfaces;
+using EmployeeManagement.Services.Implementations;
+using EmployeeManagement.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -16,12 +20,13 @@ namespace EmployeeManagement
                 Options => Options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DBConnection")));
 
-            builder.Services.AddControllers()
-            .AddJsonOptions(options =>
+            builder.Services.AddControllers().AddJsonOptions(options =>
             {
-                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
 
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

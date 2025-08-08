@@ -1,4 +1,5 @@
 ﻿using EmployeeManagement.Models.DBModels;
+using EmployeeManagement.Models.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,10 +22,10 @@ namespace EmployeeManagement.Models.RequestModels
 
         [Required(ErrorMessage = "Gender is required")]
         [RegularExpression("^(Male|Female|Other)$", ErrorMessage = "Gender must be Male, Female or Other.")]
-        public string? Gender { get; set; }
+        public GenderEnum Gender { get; set; }
 
         [Required(ErrorMessage = "DOB is required.")]
         [DataType(DataType.Date, ErrorMessage = "Invalid date format.")]
-        public string? DOB { get; set; }
+        public DateOnly DOB { get; set; }
     }
 }

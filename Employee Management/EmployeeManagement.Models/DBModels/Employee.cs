@@ -13,9 +13,9 @@ public partial class Employee
 
     public string PhoneNo { get; set; } = null!;
 
-    public int? GenderId { get; set; }
+    public int GenderId { get; set; }
 
-    public DateOnly Dob { get; set; }
+    public DateOnly DOB { get; set; }
 
     public DateOnly? DateOfJoining { get; set; }
 

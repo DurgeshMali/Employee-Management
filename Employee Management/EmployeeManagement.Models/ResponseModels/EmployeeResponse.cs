@@ -1,4 +1,5 @@
 ﻿using EmployeeManagement.Models.DBModels;
+using EmployeeManagement.Models.Enumerations;
 
 namespace EmployeeManagement.Models.RequestModels
 {
@@ -8,9 +9,9 @@ namespace EmployeeManagement.Models.RequestModels
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? PhoneNo { get; set; }
-        public GenderResponse? Gender { get; set; }
+        public GenderEnum Gender { get; set; }
         public DateOnly DOB { get; set; }
-        public DateTime DateOfJoining { get; set; }
+        public DateOnly DateOfJoining { get; set; }
         public SalaryResponse? Salary   { get; set; }
         public DepartmentResponse? Department { get; set; }
         public DesignationResponse? Designation { get; set; }
