@@ -4,8 +4,12 @@ using EmployeeManagement.Repository.Implementations;
 using EmployeeManagement.Repository.Interfaces;
 using EmployeeManagement.Services.Implementations;
 using EmployeeManagement.Services.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
+using EmployeeManagement.Exceptions;
 
 namespace EmployeeManagement
 {
@@ -18,7 +22,7 @@ namespace EmployeeManagement
             // Add services to the container.
             builder.Services.AddDbContext<EmployeeDbContext>(
                 Options => Options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DBConnection")));
+                    builder.Configuration.GetConnectionString("EmployeeDB")));
 
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
@@ -27,6 +31,8 @@ namespace EmployeeManagement
 
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+            builder.Services.AddScoped<IPasswordHasher<Employee>, PasswordHasher<Employee>>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +49,25 @@ namespace EmployeeManagement
             }
 
             app.UseHttpsRedirection();
+
+            app.UseExceptionHandler(appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+                    context.Response.ContentType = "application/json";
+
+                    if (exception is NotFoundException notFoundEx)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                        {
+                            statusCode = 404,
+                            message = notFoundEx.Message
+                        }));
+                    }
+                });
+            });
 
             app.UseAuthorization();
 

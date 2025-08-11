@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EmployeeManagement.Models.DBModels;
 
-public partial class Department
+public partial class Role
 {
     public int Id { get; set; }
 

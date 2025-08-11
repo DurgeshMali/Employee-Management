@@ -16,14 +16,29 @@ namespace EmployeeManagement.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest)
+        public async Task<IActionResult> AddEmployeeAsync([FromBody] EmployeeRequest employeeRequest)
         {
             var EmployeeId = await _employeeService.AddEmployeeAsync(employeeRequest);
-            return Ok(new 
-            { 
+            var response = new
+            {
                 Message = "You have successfully created an Account",
-                EmployeeId 
-            });
+                EmployeeId
+            };
+            return Created("/employee/login", response);
+        }
+
+        //[HttpPost("login")]
+        //public async Task<IActionResult> EmployeeLogIn([FromBody] EmployeeLoginRequest employeeLoginRequest)
+        //{
+
+        //}
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEmployeeById([FromRoute] int id)
+        {
+            var employee = await _employeeService.GetEmployeeById(id);
+
+            return Ok(employee);
         }
     }
-}
+}   

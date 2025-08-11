@@ -25,26 +25,39 @@ public partial class EmployeeDbContext : DbContext
 
     public virtual DbSet<Level> Levels { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<Salary> Salaries { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=NUCi5-19\\SQLEXPRESS;Database=Employee;Trusted_Connection=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Name=EmployeeDB");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Department>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC07CA1CBC3A");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Designation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Designat__3214EC07743552DB");
 
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Level).WithMany(p => p.Designations)
                 .HasForeignKey(d => d.LevelId)
@@ -54,10 +67,13 @@ public partial class EmployeeDbContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07DD6083CA");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0769CAB81D");
 
             entity.ToTable(tb => tb.HasTrigger("trg_AfterDelete_Employee"));
 
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.DOB).HasColumnName("DOB");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -65,9 +81,12 @@ public partial class EmployeeDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhoneNo)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+            entity.Property(e => e.RoleId).HasDefaultValue(1);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Department).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.DepartmentId)
@@ -87,6 +106,11 @@ public partial class EmployeeDbContext : DbContext
                 .HasForeignKey(d => d.ManagerId)
                 .HasConstraintName("FK_Employees_ManagerId");
 
+            entity.HasOne(d => d.Role).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Employees_RoleId");
+
             entity.HasOne(d => d.Salary).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.SalaryId)
                 .OnDelete(DeleteBehavior.SetNull)
@@ -97,20 +121,39 @@ public partial class EmployeeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Genders__3214EC071937E066");
 
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Level>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Levels__3214EC076BEC37D7");
 
-            
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07737D1BC7");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Salary>(entity =>
@@ -119,9 +162,11 @@ public partial class EmployeeDbContext : DbContext
 
             entity.Property(e => e.Allowance).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Basic).HasColumnType("decimal(10, 2)");
-            
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.NetSalary).HasColumnType("decimal(10, 2)");
-            
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

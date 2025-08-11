@@ -11,6 +11,10 @@ public partial class Designation
 
     public int? LevelId { get; set; }
 
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 
     public virtual Level? Level { get; set; }

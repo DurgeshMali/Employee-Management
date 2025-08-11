@@ -9,5 +9,9 @@ public partial class Level
 
     public string Name { get; set; } = null!;
 
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<Designation> Designations { get; set; } = new List<Designation>();
 }

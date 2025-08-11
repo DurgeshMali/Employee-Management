@@ -12,10 +12,11 @@ namespace EmployeeManagement.Models.RequestModels
         public GenderEnum Gender { get; set; }
         public DateOnly DOB { get; set; }
         public DateOnly DateOfJoining { get; set; }
-        public SalaryResponse? Salary   { get; set; }
-        public DepartmentResponse? Department { get; set; }
-        public DesignationResponse? Designation { get; set; }
-        public EmployeeResponse? Manager { get; set; }
+        public string? Role { get; set; }
+        public double Salary { get; set; }
+        public string? Department { get; set; }
+        public string? Designation { get; set; }
+        public string? Manager { get; set; }
 
     }
 }

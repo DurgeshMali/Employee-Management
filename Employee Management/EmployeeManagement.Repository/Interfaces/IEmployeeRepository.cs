@@ -12,5 +12,9 @@ namespace EmployeeManagement.Repository.Interfaces
         //Task<IEnumerable<Employee>> GetAllAsync();
         //Task<Employee?> GetByIdAsync(int id);
         Task<Employee> AddAsync(Employee employee);
+
+        Task<Employee> GetEmployeeByMailIdAsync(string mailId);
+
+        Task<Employee> GetEmployeeById(int id);
     }
 }

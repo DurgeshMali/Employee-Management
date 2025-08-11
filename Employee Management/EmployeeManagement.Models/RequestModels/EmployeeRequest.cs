@@ -27,5 +27,8 @@ namespace EmployeeManagement.Models.RequestModels
         [Required(ErrorMessage = "DOB is required.")]
         [DataType(DataType.Date, ErrorMessage = "Invalid date format.")]
         public DateOnly DOB { get; set; }
+
+        [Required(ErrorMessage ="Password is required.")]
+        public string? Password { get; set; }
     }
 }
