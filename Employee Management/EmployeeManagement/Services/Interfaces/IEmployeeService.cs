@@ -8,6 +8,8 @@ namespace EmployeeManagement.Services.Interfaces
         Task<int> AddEmployeeAsync(EmployeeRequest employee);
         //Task<EmployeeResponse> GetEmployeeByMailIdAsync(string employeeMailId);
 
+        Task<string> EmployeeLogInAsync(EmployeeLoginRequest employeeLoginRequest);
+
         Task<EmployeeResponse> GetEmployeeById(int employeeId);
     }
 }

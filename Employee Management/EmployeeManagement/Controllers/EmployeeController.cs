@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Models.RequestModels;
 using EmployeeManagement.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,12 +28,23 @@ namespace EmployeeManagement.Controllers
             return Created("/employee/login", response);
         }
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> EmployeeLogIn([FromBody] EmployeeLoginRequest employeeLoginRequest)
-        //{
+        [HttpPost("login")]
+        public async Task<IActionResult> EmployeeLogIn([FromBody] EmployeeLoginRequest employeeLoginRequest)
+        {
+            var token = await _employeeService.EmployeeLogInAsync(employeeLoginRequest);
+            if(token == null)
+            {
+                var response = new
+                {
+                    message = "Unauthorized Person"
+                };
+                return Unauthorized(response);
+            }
 
-        //}
+            return Ok(token);
+        }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEmployeeById([FromRoute] int id)
         {

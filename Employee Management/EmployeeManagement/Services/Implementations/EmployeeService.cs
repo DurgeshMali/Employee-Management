@@ -5,6 +5,11 @@ using EmployeeManagement.Models.RequestModels;
 using EmployeeManagement.Repository.Interfaces;
 using EmployeeManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace EmployeeManagement.Services.Implementations
 {
@@ -12,11 +17,13 @@ namespace EmployeeManagement.Services.Implementations
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPasswordHasher<Employee> _passwordHasher;
+        private readonly IConfiguration _configuration;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, IPasswordHasher<Employee> passwordHasher)
+        public EmployeeService(IEmployeeRepository employeeRepository, IPasswordHasher<Employee> passwordHasher, IConfiguration configuration)
         {
             _employeeRepository = employeeRepository;
             _passwordHasher = passwordHasher;
+            _configuration = configuration;
         }
         public async Task<int> AddEmployeeAsync(EmployeeRequest newEmployee)
         {
@@ -37,6 +44,38 @@ namespace EmployeeManagement.Services.Implementations
 
             var created = await _employeeRepository.AddAsync(employee);
             return created.Id;
+        }
+
+        public async Task<string?> EmployeeLogInAsync(EmployeeLoginRequest employeeLoginRequest)
+        {
+            var employee = await _employeeRepository.GetEmployeeByMailIdAsync(employeeLoginRequest.Email);
+            if (employee == null || _passwordHasher.VerifyHashedPassword(employee, employee.Password, employeeLoginRequest.Password) != PasswordVerificationResult.Success)
+            {
+                return null;
+            }
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, employeeLoginRequest.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            if (string.IsNullOrEmpty(jwtSecret))
+            {
+                throw new NotFoundException("JWT Secret is not configured.");
+            }
+            var authSigninKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddDays(1),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         //public async Task<EmployeeResponse?> GetEmployeeByMailIdAsync(string mailId)
@@ -69,7 +108,7 @@ namespace EmployeeManagement.Services.Implementations
                 Gender = (GenderEnum)employee.GenderId,
                 DOB = employee.DOB,
                 DateOfJoining = employee.DateOfJoining ?? default,
-                Role = null,
+                Role = (RoleEnum)employee.RoleId,
                 Salary = 0.00,
                 Department = null,
                 Designation = null,

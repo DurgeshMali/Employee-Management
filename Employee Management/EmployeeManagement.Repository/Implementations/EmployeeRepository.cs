@@ -23,13 +23,13 @@ namespace EmployeeManagement.Repository.Implementations
             return employee;
         }
 
-        public async Task<Employee> GetEmployeeByMailIdAsync(string emailId)
+        public async Task<Employee?> GetEmployeeByMailIdAsync(string emailId)
         {
             var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Email.ToLower() == emailId.ToLower());
             return employee;
         }
 
-        public async Task<Employee> GetEmployeeById(int id)
+        public async Task<Employee?> GetEmployeeById(int id)
         {
             var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
             return employee;

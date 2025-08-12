@@ -1,15 +1,18 @@
 
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.Models.DBModels;
 using EmployeeManagement.Repository.Implementations;
 using EmployeeManagement.Repository.Interfaces;
 using EmployeeManagement.Services.Implementations;
 using EmployeeManagement.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
-using EmployeeManagement.Exceptions;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Text.Json;
 
 namespace EmployeeManagement
 {
@@ -23,6 +26,34 @@ namespace EmployeeManagement
             builder.Services.AddDbContext<EmployeeDbContext>(
                 Options => Options.UseSqlServer(
                     builder.Configuration.GetConnectionString("EmployeeDB")));
+
+             builder.Services.AddAuthentication(option =>
+             {
+                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+             })
+            .AddJwtBearer(option =>
+            {
+                option.SaveToken = true;
+                option.RequireHttpsMetadata = false;
+
+                var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+
+                if (string.IsNullOrEmpty(jwtSecret))
+                {
+                    throw new Exception("JWT Secret is not configured.");
+                }
+
+                option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+                };
+            });
 
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
@@ -66,9 +97,19 @@ namespace EmployeeManagement
                             message = notFoundEx.Message
                         }));
                     }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                        {
+                            statusCode = 500,
+                            message = "An unexpected error occurred."
+                        }));
+                    }
                 });
             });
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
